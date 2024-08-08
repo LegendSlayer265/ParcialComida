@@ -15,15 +15,17 @@ import javax.swing.JOptionPane;
  *
  * @author Andrés
  */
-public class AdministrarCategorias extends javax.swing.JFrame {
+public class AdministrarPedido extends javax.swing.JFrame {
 
     /**
      * Creates new form AdministrarCategorias
      */
-    public AdministrarCategorias() {
+    public AdministrarPedido() {
         initComponents();
         setLocationRelativeTo(null);
         btnAgregarCom.setEnabled(false);
+        refreshTable();
+        refreshTablePedido();
         cargarComida();
     }
     public void validarCampo(){
@@ -67,6 +69,8 @@ public class AdministrarCategorias extends javax.swing.JFrame {
         jComboBoxComida = new javax.swing.JComboBox<>();
         btnSeleComida = new javax.swing.JButton();
         LabelEliminar = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        TablaPedido = new javax.swing.JTable();
         Background2 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -113,6 +117,9 @@ public class AdministrarCategorias extends javax.swing.JFrame {
         });
         TablaComida.setGridColor(new java.awt.Color(204, 204, 255));
         jScrollPane1.setViewportView(TablaComida);
+        if (TablaComida.getColumnModel().getColumnCount() > 0) {
+            TablaComida.getColumnModel().getColumn(0).setPreferredWidth(20);
+        }
 
         getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 100, 370, 250));
 
@@ -196,6 +203,29 @@ public class AdministrarCategorias extends javax.swing.JFrame {
         LabelEliminar.setText("Seleccionar Comida");
         PanelEliminar.add(LabelEliminar, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 130, -1, -1));
 
+        TablaPedido.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Id", "Comida"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane2.setViewportView(TablaPedido);
+        if (TablaPedido.getColumnModel().getColumnCount() > 0) {
+            TablaPedido.getColumnModel().getColumn(0).setPreferredWidth(50);
+        }
+
+        PanelEliminar.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 70, 270, 280));
+
         Background2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Assets/home-background-image.png"))); // NOI18N
         PanelEliminar.add(Background2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 860, 410));
 
@@ -225,16 +255,20 @@ public class AdministrarCategorias extends javax.swing.JFrame {
     private void formComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentShown
         // TODO add your handling code here:
         refreshTable();
+        refreshTablePedido();
     }//GEN-LAST:event_formComponentShown
 
     private void btnSeleComidaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSeleComidaActionPerformed
         // TODO add your handling code here:
-        int response = JOptionPane.showConfirmDialog(this, "¿Estás seguro de eliminar la categoria seleccionada?", "Confirmar eliminación", JOptionPane.YES_NO_OPTION);
-        if (response == JOptionPane.YES_OPTION) {
-            String selectedCategory = (String) jComboBoxComida.getSelectedItem();
-            DaoComida.eliminar(selectedCategory);
+        int response = JOptionPane.showConfirmDialog(this, "¿Estás seguro de agregar la comida seleccionada?", "Confirmar selección", JOptionPane.YES_NO_OPTION);
+            if (response == JOptionPane.YES_OPTION) {
+            String selectedComida = (String) jComboBoxComida.getSelectedItem();
+            Comida comida = DaoComida.getComidaByName(selectedComida); 
+            DaoComida.pedir(comida);
+            refreshTable();
+            refreshTablePedido();
             setVisible(false);
-            new AdministrarCategorias().setVisible(true);
+            new AdministrarPedido().setVisible(true);
         }
     }//GEN-LAST:event_btnSeleComidaActionPerformed
 
@@ -259,8 +293,9 @@ public class AdministrarCategorias extends javax.swing.JFrame {
         comida.setComida(TextoNuevaComida.getText());
         DaoComida.agregar(comida);
         refreshTable();
+        refreshTablePedido();
         setVisible(false);
-        new AdministrarCategorias().setVisible(true);
+        new AdministrarPedido().setVisible(true);
     }//GEN-LAST:event_btnAgregarComActionPerformed
 
     private void TextoNuevaComidaKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TextoNuevaComidaKeyReleased
@@ -283,6 +318,18 @@ public class AdministrarCategorias extends javax.swing.JFrame {
         }  
     }
     
+        public void refreshTablePedido(){
+        DefaultTableModel dtm = (DefaultTableModel) TablaPedido.getModel();
+        dtm.setRowCount(0);
+        ArrayList<Comida> list = DaoComida.getSomeRecords();
+        Iterator<Comida> itr = list.iterator();
+        while(itr.hasNext()){
+            Comida comidaObj = itr.next();
+            dtm.addRow(new Object[]{comidaObj.getId(),comidaObj.getComida()});
+        }  
+    }
+    
+    
     /**
      * @param args the command line arguments
      */
@@ -300,20 +347,20 @@ public class AdministrarCategorias extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(AdministrarCategorias.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(AdministrarPedido.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(AdministrarCategorias.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(AdministrarPedido.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(AdministrarCategorias.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(AdministrarPedido.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(AdministrarCategorias.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(AdministrarPedido.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new AdministrarCategorias().setVisible(true);
+                new AdministrarPedido().setVisible(true);
             }
         });
     }
@@ -328,6 +375,7 @@ public class AdministrarCategorias extends javax.swing.JFrame {
     private javax.swing.JPanel PanelAgregarCat;
     private javax.swing.JPanel PanelEliminar;
     private javax.swing.JTable TablaComida;
+    private javax.swing.JTable TablaPedido;
     private javax.swing.JTextField TextoNuevaComida;
     private javax.swing.JButton btnAgregarCom;
     private javax.swing.JButton btnLimpiar;
@@ -336,6 +384,7 @@ public class AdministrarCategorias extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> jComboBoxComida;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTabbedPane jTabbedPane1;
     // End of variables declaration//GEN-END:variables
 }

@@ -17,6 +17,10 @@ public class DaoComida {
         String query = "INSERT INTO Comida (comida) values('"+comida.getComida()+"')";
         Operaciondb.setDataOrDelete(query, "comida agregada correctamente ");
     }
+        public static void pedir(Comida comida){
+        String query = "INSERT INTO Pedido (comida) values('"+comida.getComida()+"')";
+        Operaciondb.setDataOrDelete(query, "comida pedida correctamente ");
+    }
     public static ArrayList<Comida> getAllRecords(){
         ArrayList<Comida> arrayList = new ArrayList<>();
         try{
@@ -33,9 +37,37 @@ public class DaoComida {
         }
         return arrayList;
     }
-    public static void eliminar(String comida){
-        String query = "DELETE FROM comida WHERE comida='"+comida+"'";
-        Operaciondb.setDataOrDelete(query, "comida eliminada correctamente ");
+    public static ArrayList<Comida> getSomeRecords(){
+        ArrayList<Comida> arrayList = new ArrayList<>();
+        try{
+            ResultSet rs = Operaciondb.getData("SELECT * FROM Pedido");
+            while(rs.next()){
+                Comida comida = new Comida();
+                comida.setId(rs.getInt("id"));
+                comida.setComida(rs.getString("comida"));
+                arrayList.add(comida);
+            }
+        }
+        catch(Exception e){
+            JOptionPane.showMessageDialog(null, e);
+        }
+        return arrayList;
+    }
+    
+    public static Comida getComidaByName(String name){
+        Comida comida = null;
+        try{
+            ResultSet rs = Operaciondb.getData("SELECT * FROM comida WHERE comida = '"+name+"'");
+            if(rs.next()){
+                comida = new Comida();
+                comida.setId(rs.getInt("id"));
+                comida.setComida(rs.getString("comida"));
+            }
+        }
+        catch(Exception e){
+            JOptionPane.showMessageDialog(null, e);
+        }
+        return comida;
     }
     
 }
